@@ -36,7 +36,7 @@ const Security = () => {
             </div>
             <h2 className="text-foreground">
               Uw Medische Data{" "}
-              <span className="gradient-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent font-bold">
                 100% Veilig
               </span>
             </h2>
