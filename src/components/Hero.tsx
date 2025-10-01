@@ -25,11 +25,12 @@ const Hero = () => {
           </div>
 
           {/* Heading */}
-          <h1 className="text-foreground">
-            Veilige Cloud Oplossingen voor de{" "}
-            <span className="gradient-primary bg-clip-text text-transparent">
-              Zorg
-            </span>
+          <h1 className="text-foreground drop-shadow-lg">
+            Veilige{" "}
+            <span className="gradient-primary bg-clip-text text-transparent font-bold">
+              Cloud
+            </span>{" "}
+            Oplossingen voor de Zorg
           </h1>
 
           {/* Subheading */}
