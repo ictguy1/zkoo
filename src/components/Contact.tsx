@@ -1,8 +1,67 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin } from "lucide-react";
 
 const Contact = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: ""
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Update deze URL naar je Web VM IP of domein
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      
+      const response = await fetch(`${apiUrl}/api/demo-requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Aanvraag verzonden!",
+          description: "We nemen zo spoedig mogelijk contact met u op.",
+        });
+        setFormData({ name: "", email: "", phone: "", company: "", message: "" });
+      } else {
+        throw new Error(data.error || 'Er ging iets mis');
+      }
+    } catch (error) {
+      toast({
+        title: "Fout bij verzenden",
+        description: "Probeer het later opnieuw of neem direct contact op.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   return (
     <section className="py-24 px-6 bg-muted/30">
       <div className="container mx-auto max-w-6xl">
@@ -20,12 +79,72 @@ const Contact = () => {
               <div>
                 <h3 className="text-2xl font-semibold mb-6">Plan een Demo</h3>
                 <p className="text-muted-foreground mb-8">
-                  Ontdek hoe ZKOO uw zorginstelling kan helpen met veilige, 
-                  schaalbare cloud oplossingen. Plan een persoonlijke demo.
+                  Vul het formulier in en ontdek hoe ZKOO uw zorginstelling kan helpen met veilige, schaalbare cloud oplossingen.
                 </p>
               </div>
 
-              <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Input
+                    name="name"
+                    placeholder="Naam *"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <Input
+                    name="email"
+                    type="email"
+                    placeholder="Email *"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <Input
+                    name="phone"
+                    type="tel"
+                    placeholder="Telefoon"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <Input
+                    name="company"
+                    placeholder="Organisatie"
+                    value={formData.company}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <Textarea
+                    name="message"
+                    placeholder="Bericht"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows={4}
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full shadow-glow hover:shadow-soft transition-smooth"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Verzenden..." : "Vraag een Demo Aan"}
+                </Button>
+              </form>
+
+              <div className="pt-6 border-t border-border/50 space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="w-5 h-5 text-primary" />
@@ -63,10 +182,6 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
-
-              <Button size="lg" className="w-full shadow-glow hover:shadow-soft transition-smooth">
-                Vraag een Demo Aan
-              </Button>
             </CardContent>
           </Card>
 
