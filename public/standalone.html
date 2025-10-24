@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZKOO - Cloud Solutions for Healthcare | Secure Medical Software</title>
+    <meta name="description" content="ZKOO provides secure cloud-based software solutions for healthcare institutions in the Netherlands and Belgium. GDPR compliant medical data management.">
+    <meta name="keywords" content="healthcare software, cloud solutions, medical data, GDPR, AVG, Azure, data protection">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --primary: 210 100% 50%;
+            --primary-foreground: 0 0% 100%;
+            --background: 0 0% 100%;
+            --foreground: 222 47% 11%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215 16% 47%;
+            --border: 214 32% 91%;
+            --input: 214 32% 91%;
+            --ring: 210 100% 50%;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: 210 100% 50%;
+                --primary-foreground: 0 0% 100%;
+                --background: 222 47% 11%;
+                --foreground: 210 40% 98%;
+                --muted: 217 33% 17%;
+                --muted-foreground: 215 20% 65%;
+                --border: 217 33% 17%;
+                --input: 217 33% 17%;
+                --ring: 210 100% 50%;
+            }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, hsl(210 100% 50%), hsl(210 100% 60%));
+        }
+        
+        .shadow-soft {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .shadow-glow {
+            box-shadow: 0 0 40px hsla(210, 100%, 50%, 0.2);
+        }
+        
+        .transition-smooth {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card {
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 20px hsla(210, 100%, 50%, 0.3);
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: inherit;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 3px hsla(210, 100%, 50%, 0.1);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            display: none;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <p id="toast-message"></p>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b shadow-soft" style="border-color: hsl(var(--border));">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center gap-2 transition-smooth hover:opacity-80">
+                    <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-bold">ZKOO</span>
+                </a>
+
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#diensten" class="text-sm font-medium hover:text-blue-600 transition-smooth">Diensten</a>
+                    <a href="#beveiliging" class="text-sm font-medium hover:text-blue-600 transition-smooth">Beveiliging</a>
+                    <a href="#over" class="text-sm font-medium hover:text-blue-600 transition-smooth">Over Ons</a>
+                    <a href="#contact" class="text-sm font-medium hover:text-blue-600 transition-smooth">Contact</a>
+                </div>
+
+                <button class="btn-primary shadow-soft">Demo Aanvragen</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden" style="margin-top: 64px;">
+        <div class="absolute inset-0 z-0">
+            <img src="/src/assets/hero-healthcare.jpg" alt="Healthcare Technology" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 to-blue-600/80"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10 text-center text-white">
+            <div class="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
+                <span class="text-sm font-medium">✓ AVG/GDPR Compliant</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Veilige Cloud Oplossingen<br/>voor de Gezondheidszorg
+            </h1>
+            
+            <p class="text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto">
+                ZKOO levert innovatieve software die privacy en veiligheid waarborgt voor medische instellingen in Nederland en België
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                <button class="btn-primary text-lg px-8 py-4">Ontdek Onze Diensten</button>
+                <button class="bg-white/10 backdrop-blur-sm text-white border border-white/30 text-lg px-8 py-4 rounded-lg hover:bg-white/20 transition-smooth">
+                    Plan een Demo
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                    <div class="text-4xl font-bold mb-2">99.9%</div>
+                    <div class="text-blue-100">Uptime Garantie</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                    <div class="text-4xl font-bold mb-2">24/7</div>
+                    <div class="text-blue-100">Support</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                    <div class="text-4xl font-bold mb-2">100%</div>
+                    <div class="text-blue-100">GDPR Compliant</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-float"></div>
+        <div class="absolute top-40 right-20 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl animate-float" style="animation-delay: -2s;"></div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="diensten" class="py-24 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Onze Diensten</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Gespecialiseerde software oplossingen voor diverse zorginstellingen
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2c0 1.1.9 2 2 2h5v5c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Huisartsenpraktijken</h3>
+                    <p class="text-gray-600">Complete EPD-systemen met agenda, recept voorschrijven en declaraties</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Ziekenhuizen</h3>
+                    <p class="text-gray-600">Geïntegreerde zorgplatforms voor complexe medische workflows</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <circle cx="12" cy="12" r="4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Specialistische Zorg</h3>
+                    <p class="text-gray-600">AI-ondersteunde diagnostiek en behandelplannen</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Cloud Infrastructuur</h3>
+                    <p class="text-gray-600">Veilige en schaalbare hosting op Microsoft Azure</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Data Beveiliging</h3>
+                    <p class="text-gray-600">End-to-end encryptie en AVG/GDPR compliance</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                            <path d="M3 5V19A9 3 0 0 0 21 19V5"/>
+                            <path d="M3 12A9 3 0 0 0 21 12"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Data Management</h3>
+                    <p class="text-gray-600">Geavanceerde analytics en rapportage tools</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section id="beveiliging" class="py-24">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Veiligheid & Compliance</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Uw gegevens zijn in veilige handen met onze geavanceerde beveiligingsmaatregelen
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                <div class="card transition-smooth text-center">
+                    <div class="w-16 h-16 rounded-lg gradient-primary flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">AVG/GDPR Compliant</h3>
+                    <p class="text-gray-600 text-sm">Volledig volgens Europese privacywetgeving</p>
+                </div>
+                
+                <div class="card transition-smooth text-center">
+                    <div class="w-16 h-16 rounded-lg gradient-primary flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">End-to-End Encryptie</h3>
+                    <p class="text-gray-600 text-sm">256-bit AES encryptie voor alle data</p>
+                </div>
+                
+                <div class="card transition-smooth text-center">
+                    <div class="w-16 h-16 rounded-lg gradient-primary flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <path d="M10 12a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2"/>
+                            <path d="M10 12V10a2 2 0 1 1 4 0v2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">ISO 27001 Gecertificeerd</h3>
+                    <p class="text-gray-600 text-sm">Internationale veiligheidsnorm</p>
+                </div>
+                
+                <div class="card transition-smooth text-center">
+                    <div class="w-16 h-16 rounded-lg gradient-primary flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+                            <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+                            <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" x2="12" y1="22.08" y2="12"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">NEN 7510 Norm</h3>
+                    <p class="text-gray-600 text-sm">Nederlandse zorg informatiebeveiliging</p>
+                </div>
+            </div>
+            
+            <div class="card max-w-4xl mx-auto">
+                <h3 class="text-2xl font-bold mb-4">Microsoft Azure Infrastructuur</h3>
+                <p class="text-gray-600 mb-6">
+                    Al onze diensten draaien op Microsoft Azure, één van 's werelds meest veilige en betrouwbare cloud platforms. 
+                    Dit garandeert de hoogste standaarden op het gebied van beveiliging, compliance en beschikbaarheid.
+                </p>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Data centers in Nederland en België voor lokale data opslag</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>99.9% uptime SLA (Service Level Agreement)</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Automatische back-ups en disaster recovery</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>24/7 monitoring en threat detection</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="over" class="py-24 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Over ZKOO</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Uw partner in digitale gezondheidszorg sinds 2018
+                </p>
+            </div>
+            
+            <div class="card max-w-4xl mx-auto mb-12">
+                <h3 class="text-2xl font-bold mb-4">Wie We Zijn</h3>
+                <p class="text-gray-600 mb-4">
+                    ZKOO is een toonaangevende leverancier van cloud-gebaseerde softwareoplossingen voor de gezondheidszorg. 
+                    Ons team van experts combineert diepgaande kennis van de zorgsector met cutting-edge technologie om 
+                    oplossingen te creëren die echt verschil maken.
+                </p>
+                <p class="text-gray-600">
+                    Met kantoren in Nederland en België bedienen we zorgverleners in de gehele Benelux. Onze missie is om 
+                    hoogwaardige zorg toegankelijker te maken door innovatieve technologie die veiligheid en privacy waarborgt.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Innovatie</h3>
+                    <p class="text-gray-600">We blijven vooroplopen met de nieuwste technologieën en best practices</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Veiligheid</h3>
+                    <p class="text-gray-600">Privacy en beveiliging staan altijd op de eerste plaats in onze oplossingen</p>
+                </div>
+                
+                <div class="card transition-smooth">
+                    <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Samenwerking</h3>
+                    <p class="text-gray-600">We werken nauw samen met zorgverleners voor optimale resultaten</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-4">🇳🇱 Nederland</h3>
+                    <p class="text-gray-600 mb-2"><strong>Amsterdam Hoofdkantoor</strong></p>
+                    <p class="text-gray-600">Science Park 904</p>
+                    <p class="text-gray-600">1098 XH Amsterdam</p>
+                    <p class="text-gray-600 mt-2">Tel: +31 20 123 4567</p>
+                </div>
+                
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-4">🇧🇪 België</h3>
+                    <p class="text-gray-600 mb-2"><strong>Brussel Kantoor</strong></p>
+                    <p class="text-gray-600">Louizalaan 250</p>
+                    <p class="text-gray-600">1050 Brussel</p>
+                    <p class="text-gray-600 mt-2">Tel: +32 2 123 4567</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Neem Contact Op</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Heeft u vragen of wilt u meer informatie? We helpen u graag verder.
+                </p>
+            </div>
+            
+            <div class="max-w-2xl mx-auto">
+                <form id="contactForm" class="card">
+                    <div class="mb-6">
+                        <label for="name" class="block text-sm font-medium mb-2">Naam *</label>
+                        <input type="text" id="name" name="name" required class="input-field" placeholder="Uw naam">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="email" class="block text-sm font-medium mb-2">E-mail *</label>
+                        <input type="email" id="email" name="email" required class="input-field" placeholder="uw.email@example.com">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="phone" class="block text-sm font-medium mb-2">Telefoon</label>
+                        <input type="tel" id="phone" name="phone" class="input-field" placeholder="+31 6 12345678">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="company" class="block text-sm font-medium mb-2">Organisatie</label>
+                        <input type="text" id="company" name="company" class="input-field" placeholder="Uw organisatie">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="message" class="block text-sm font-medium mb-2">Bericht *</label>
+                        <textarea id="message" name="message" required rows="6" class="input-field" placeholder="Waar kunnen we u mee helpen?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full py-3 text-lg">
+                        Verstuur Bericht
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                            </svg>
+                        </div>
+                        <span class="text-2xl font-bold">ZKOO</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">Veilige cloud oplossingen voor de gezondheidszorg</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Diensten</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#diensten" class="hover:text-white transition-smooth">Huisartsen</a></li>
+                        <li><a href="#diensten" class="hover:text-white transition-smooth">Ziekenhuizen</a></li>
+                        <li><a href="#diensten" class="hover:text-white transition-smooth">Specialistische Zorg</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Bedrijf</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#over" class="hover:text-white transition-smooth">Over Ons</a></li>
+                        <li><a href="#beveiliging" class="hover:text-white transition-smooth">Beveiliging</a></li>
+                        <li><a href="#contact" class="hover:text-white transition-smooth">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Legal</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-smooth">Privacy Beleid</a></li>
+                        <li><a href="#" class="hover:text-white transition-smooth">Algemene Voorwaarden</a></li>
+                        <li><a href="#" class="hover:text-white transition-smooth">AVG/GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2024 ZKOO. Alle rechten voorbehouden. | Amsterdam, Nederland & Brussel, België</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Contact form submission
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                company: document.getElementById('company').value,
+                message: document.getElementById('message').value
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast('Bedankt! Uw bericht is succesvol verzonden.', 'success');
+                    document.getElementById('contactForm').reset();
+                } else {
+                    showToast('Er is iets misgegaan. Probeer het later opnieuw.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Er is een fout opgetreden. Controleer uw internetverbinding.', 'error');
+            }
+        });
+        
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.style.background = type === 'success' ? 'hsl(142, 76%, 36%)' : 'hsl(0, 72%, 51%)';
+            toast.style.color = 'white';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
